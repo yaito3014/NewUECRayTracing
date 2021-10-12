@@ -12,17 +12,15 @@
       "ctestCommandArgs": ""
     },
     {
-      "name": "WSL-GCC-Debug",
+      "name": "x64-Release",
       "generator": "Ninja",
-      "configurationType": "Debug",
+      "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeExecutable": "cmake",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ],
-      "wslPath": "${defaultWSLPath}",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
       "variables": []
     }
   ]
