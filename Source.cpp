@@ -13,12 +13,14 @@
 
 #include "yk/camera.hpp"
 #include "yk/color.hpp"
+#include "yk/custom.hpp"
 #include "yk/hittables/hittable_list.hpp"
+#include "yk/hittables/moving_sphere.hpp"
 #include "yk/hittables/sphere.hpp"
+#include "yk/materials/dielectric.hpp"
 #include "yk/materials/lambertian.hpp"
 #include "yk/materials/metal.hpp"
 #include "yk/random.hpp"
-#include "yk/scatter.hpp"
 
 template <class T, class Gen>
 constexpr yk::color<T> ray_color(const yk::ray<T>& r,
@@ -49,48 +51,82 @@ constexpr yk::color<std::uint8_t> into(const yk::color<T>& c) {
   };
 }
 
-template <class T>
-constexpr yk::hittable<T> get_world() noexcept {
-  yk::hittable_list<double> world;
+template <class T, class Gen>
+constexpr yk::hittable<T> get_world(Gen& gen) noexcept {
+  yk::hittable_list<T> world;
 
-  auto material_ground = yk::lambertian<T>(yk::color<T>(0.8, 0.8, 0.0));
-  auto material_center = yk::lambertian<T>(yk::color<T>(0.7, 0.3, 0.3));
-  auto material_left = yk::metal<T>(yk::color<T>(0.8, 0.8, 0.8));
-  auto material_right = yk::metal<T>(yk::color<T>(0.8, 0.6, 0.2));
+  auto ground_material = yk::lambertian<T>({0.5, 0.5, 0.5});
+  world.add(yk::sphere<T>{{0, -1000, 0}, 1000, ground_material});
 
-  world.add(
-      yk::sphere<T>{yk::pos3<T>{0.0, -100.5, -1.0}, 100.0, material_ground});
-  world.add(yk::sphere<T>(yk::pos3<T>(0.0, 0.0, -1.0), 0.5, material_center));
-  world.add(yk::sphere<T>(yk::pos3<T>(-1.0, 0.0, -1.0), 0.5, material_left));
-  world.add(yk::sphere<T>(yk::pos3<T>(1.0, 0.0, -1.0), 0.5, material_right));
+  yk::uniform_real_distribution<T> dist(0, 1);
+
+  for (int a = -11; a < 11; ++a) {
+    for (int b = -11; b < 11; ++b) {
+      auto choose_mat = dist(gen);
+      yk::pos3<T> center(a + 0.8 * dist(gen), 0.2, b + 0.8 * dist(gen));
+      if ((center - yk::pos3<T>(4, 0.2, 0)).length() <= 0.9) continue;
+
+      if (choose_mat < 0.8) {
+        // diffuse
+        auto albedo = yk::color<T>::random(gen) * yk::color<T>::random(gen);
+        auto center2 = center + yk::vec3<T>(0, dist(gen) / 2, 0);
+        world.add(yk::moving_sphere<T>(center, center2, 0, 1, 0.2,
+                                       yk::lambertian<T>(albedo)));
+      } else if (choose_mat < 0.95) {
+        // metal
+        auto albedo = yk::color<T>::random(0.5, 1, gen);
+        auto fuzz = dist(gen) / 2;
+        world.add(yk::sphere<T>(center, 0.2, yk::metal<T>(albedo, fuzz)));
+      } else {
+        // glass
+        world.add(yk::sphere<T>(center, 0.2, yk::dielectric<T>(1.5)));
+      }
+    }
+  }
+
+  world.add(yk::sphere<T>({0, 1, 0}, 1.0, yk::dielectric<T>(1.5)));
+
+  world.add(yk::sphere<T>({-4, 1, 0}, 1.0, yk::lambertian<T>({0.4, 0.2, 0.1})));
+
+  world.add(yk::sphere<T>({4, 1, 0}, 1.0, yk::metal<T>({0.7, 0.6, 0.5}, 0.0)));
 
   return world;
 }
 
 template <class T>
 constexpr auto render() noexcept {
-  yk::camera<T> cam;
-  yk::mt19937 mt;
+  auto R = cos(3.14159265358979 / 4);
+
+  yk::mt19937 mt(std::random_device{}());
   yk::uniform_real_distribution<T> dist(0, 1);
 
-  std::array<yk::color<std::uint8_t>,
-             yk::constants::image_width* yk::constants::image_height>
-      img = {};
+  std::vector<yk::color<std::uint8_t>> img(yk::constants::image_width *
+                                           yk::constants::image_height);
 
-  // std::vector<yk::color<std::uint8_t>> img(yk::constants::image_width *
-  // yk::constants::image_height);
+  /* std::array<yk::color<std::uint8_t>,
+              yk::constants::image_width * yk::constants::image_height>
+       img{};*/
 
-  auto world = get_world<T>();
+  auto world = get_world<T>(mt);
+
+  yk::pos3<T> lookfrom(13, 2, 3);
+  yk::pos3<T> lookat(0, 0, 0);
+  yk::vec3<T> vup(0, 1, 0);
+  auto dist_to_focus = 10.0;
+  auto aperture = 0.1;
+
+  yk::camera<T> cam(lookfrom, lookat, vup, 20, yk::constants::aspect_ratio,
+                    aperture, dist_to_focus, 0, 1);
 
   for (int h = 0; h < yk::constants::image_height; ++h) {
-    std::cout << "line : " << h << '\n';
+    if (not std::is_constant_evaluated()) std::cout << "line : " << h << '\n';
     for (int w = 0; w < yk::constants::image_width; ++w) {
       std::vector<yk::ray<T>> rays(yk::constants::samples_per_pixel);
       std::generate(rays.begin(), rays.end(), [&]() {
         auto u = double(w + dist(mt)) / yk::constants::image_width;
         auto v = double(yk::constants::image_height - h - dist(mt)) /
                  yk::constants::image_height;
-        return cam.get_ray(u, v);
+        return cam.get_ray(u, v, mt);
       });
       yk::color<T> pixel_color =
           std::transform_reduce(

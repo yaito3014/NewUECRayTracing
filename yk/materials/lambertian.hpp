@@ -20,7 +20,7 @@ struct lambertian {
                          Gen& gen) const noexcept {
     auto scatter_direction = rec.normal + random_unit_vector<T>(gen);
     if (scatter_direction.near_zero()) scatter_direction = rec.normal;
-    scattered = ray<T>(rec.pos, scatter_direction);
+    scattered = ray<T>(rec.pos, scatter_direction, r.time);
     attenuation = albedo;
     return true;
   }

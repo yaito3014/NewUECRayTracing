@@ -12,6 +12,7 @@ template <class T>
 struct ray {
   pos3<T> origin;
   vec3<T> direction;
+  T time = 0;
 
   template <class U>
   constexpr pos3<T> at(const U& scaler) const noexcept {

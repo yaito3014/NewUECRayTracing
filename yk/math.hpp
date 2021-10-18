@@ -34,6 +34,22 @@ constexpr T abs(T x) noexcept {
   return x > 0 ? x : -x;
 }
 
+template <class T>
+constexpr T pow(T a, unsigned n) noexcept {
+  T res = 1;
+  while (n) {
+    if (n & 1) res *= a;
+    if (n >>= 1) a *= a;
+  }
+  return res;
+}
+
+namespace numbers {
+
+inline constexpr double pi = 3.14159265358979;
+
+}  // namespace numbers
+
 }  // namespace yk::math
 
 #endif  // !YK_RAYTRACING_MATH_HPP

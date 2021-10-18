@@ -5,9 +5,9 @@
 
 #include <random>
 
-#include "vec3.hpp"
-
 namespace yk {
+
+#pragma warning(push, 0)
 
 template <typename UIntType, size_t w, size_t n, size_t m, size_t r, UIntType a,
           size_t u, UIntType d, size_t s, UIntType b, size_t t, UIntType c,
@@ -151,6 +151,8 @@ constexpr RealType generate_canonical(UniformRandomNumberGenerator& urng) {
   return ret;
 }
 
+#pragma warning(pop)
+
 template <typename Engine, typename DInputType>
 struct Adaptor {
   static_assert(std::is_floating_point<DInputType>::value,
@@ -256,27 +258,9 @@ class uniform_real_distribution {
 };
 
 template <typename IntType>
-constexpr inline bool operator!=(
-    const uniform_real_distribution<IntType>& d1,
-    const uniform_real_distribution<IntType>& d2) {
+constexpr inline bool operator!=(const uniform_real_distribution<IntType>& d1,
+                                 const uniform_real_distribution<IntType>& d2) {
   return !(d1 == d2);
-}
-
-template <class T, class Gen>
-constexpr vec3<T> random_in_unit_sphere(Gen& gen) {
-  uniform_real_distribution<T> dist(0, 0.999);
-  return vec3<T>::random(gen).normalized() * dist(gen);
-}
-
-template <class T, class Gen>
-constexpr vec3<T> random_unit_vector(Gen& gen) {
-  return vec3<T>::random(gen).normalized();
-}
-
-template <class T, class Gen>
-constexpr vec3<T> random_in_hemisphere(const vec3<T>& normal, Gen& gen) {
-  vec3<T> in_unit_sphere = random_in_unit_sphere<T>(gen);
-  return dot(in_unit_sphere, normal) > 0.0 ? in_unit_sphere : -in_unit_sphere;
 }
 
 }  // namespace yk

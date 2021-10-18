@@ -3,6 +3,8 @@
 #ifndef YK_RAYTRACING_COLOR_HPP
 #define YK_RAYTRACING_COLOR_HPP
 
+#include "random.hpp"
+
 namespace yk {
 
 template <class T>
@@ -67,6 +69,21 @@ struct alignas(T) color {
   template <class U>
   friend constexpr color operator/(const U& scaler, const color& c) noexcept {
     return color(c) /= scaler;
+  }
+
+  template <class Gen>
+  static constexpr color random(T min, T max, Gen& gen) noexcept {
+    uniform_real_distribution<T> dist(min, max);
+    return {
+        dist(gen),
+        dist(gen),
+        dist(gen),
+    };
+  }
+
+  template <class Gen>
+  static constexpr color random(Gen& gen) noexcept {
+    return random(0, 1, gen);
   }
 };
 

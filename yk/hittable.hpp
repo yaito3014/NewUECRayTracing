@@ -17,7 +17,10 @@ template <class T>
 struct hittable_list;
 
 template <class T>
-using hittable = std::variant<sphere<T>, hittable_list<T>>;
+struct moving_sphere;
+
+template <class T>
+using hittable = std::variant<sphere<T>, hittable_list<T>, moving_sphere<T>>;
 
 }  // namespace yk
 

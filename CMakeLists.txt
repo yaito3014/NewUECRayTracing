@@ -6,10 +6,16 @@ cmake_minimum_required (VERSION 3.8)
 project ("NewUECRayTracing")
 
 set (CMAKE_CXX_STANDARD 20)
-set (CMAKE_CXX_STACK_SIZE 10000000000)
+set (CMAKE_CXX_STACK_SIZE 1000000000)
+
 
 # ソースをこのプロジェクトの実行可能ファイルに追加します。
-add_executable (NewUECRayTracing "Source.cpp"   "yk/vec3.hpp" "yk/math.hpp" "yk/pos3.hpp" "yk/color.hpp" "yk/ray.hpp" "yk/camera.hpp" "yk/hittable.hpp" "yk/hittables/sphere.hpp" "yk/hittables/hittable_list.hpp" "yk/config.hpp" "yk/material.hpp" "yk/materials/lambertian.hpp" "yk/random.hpp" "yk/materials/metal.hpp" "yk/scatter.hpp" "yk/hit.hpp" "yk/hit_record.hpp")
+add_executable (NewUECRayTracing "Source.cpp"   "yk/vec3.hpp" "yk/math.hpp" "yk/pos3.hpp" "yk/color.hpp" "yk/ray.hpp" "yk/camera.hpp" "yk/hittable.hpp" "yk/hittables/sphere.hpp" "yk/hittables/hittable_list.hpp" "yk/config.hpp" "yk/material.hpp" "yk/materials/lambertian.hpp" "yk/random.hpp" "yk/materials/metal.hpp"   "yk/hit_record.hpp" "yk/materials/dielectric.hpp" "yk/hittables/moving_sphere.hpp" "yk/aabb.hpp" "yk/custom.hpp" "yk/bvh.hpp")
+
+if (UNIX)
+find_package(TBB REQUIRED)
+target_link_libraries(NewUECRayTracing tbb)
+endif (UNIX)
 
 find_path(STB_INCLUDE_DIRS "stb.h")
 target_include_directories(NewUECRayTracing PRIVATE ${STB_INCLUDE_DIRS})

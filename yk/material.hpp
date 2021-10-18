@@ -10,14 +10,17 @@
 
 namespace yk {
 
- template <class T>
- struct lambertian;
+template <class T>
+struct lambertian;
 
 template <class T>
 struct metal;
 
 template <class T>
-using material = std::variant<lambertian<T>, metal<T>>;
+struct dielectric;
+
+template <class T>
+using material = std::variant<lambertian<T>, metal<T>, dielectric<T>>;
 
 }  // namespace yk
 

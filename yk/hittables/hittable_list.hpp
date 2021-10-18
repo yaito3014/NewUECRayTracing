@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include "../hit.hpp"
+#include "../custom.hpp"
 #include "../hit_record.hpp"
 #include "../hittable.hpp"
 
@@ -32,6 +32,20 @@ struct hittable_list {
     }
 
     return hit_anything;
+  }
+
+  constexpr bool bouding_box(T time0, T time1,
+                             aabb<T>& output_box) const noexcept {
+    if (objects.empty()) return false;
+
+    aabb<T> temp_box;
+    bool first_box = true;
+    for (const auto& object : objects) {
+      if (!yk::bounding_box(object, time0, time1, temp_box)) return false;
+      output_box = first_box ? temp_box : surrounding_box(output_box, temp_box);
+      first_box = false;
+    }
+    return true;
   }
 };
 
