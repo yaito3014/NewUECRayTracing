@@ -20,7 +20,8 @@ template <class T>
 struct moving_sphere;
 
 template <class T>
-using hittable = std::variant<sphere<T>, hittable_list<T>, moving_sphere<T>>;
+using hittable =
+    std::variant<sphere<T>, hittable_list<T>, moving_sphere<T>>;
 
 }  // namespace yk
 

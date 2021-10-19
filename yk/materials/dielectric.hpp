@@ -26,7 +26,7 @@ struct dielectric {
       return r0 + (1 - r0) * math::pow((1 - cosine), 5);
     };
 
-    attenuation = color<T>(1.0, 1.0, 1.0);
+    attenuation = color<T>{1.0, 1.0, 1.0};
     T refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
 
     auto unit_direction = r_in.direction.normalized();
@@ -41,7 +41,7 @@ struct dielectric {
             ? reflect(unit_direction, rec.normal)
             : refract(unit_direction, rec.normal, refraction_ratio);
 
-    scattered = ray<T>(rec.pos, direction, r_in.time);
+    scattered = ray<T>{rec.pos, direction, r_in.time};
     return true;
   }
 };

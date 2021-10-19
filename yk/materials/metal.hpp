@@ -24,8 +24,8 @@ struct metal {
                          color<T>& attenuation, ray<T>& scattered,
                          Gen& gen) const noexcept {
     vec3<T> reflected = reflect(r.direction.normalized(), rec.normal);
-    scattered = ray<T>(
-        rec.pos, reflected + fuzz * random_in_unit_sphere<T>(gen), r.time);
+    scattered = ray<T>{
+        rec.pos, reflected + fuzz * random_in_unit_sphere<T>(gen), r.time};
     attenuation = albedo;
     return (dot(scattered.direction, rec.normal) > 0);
   }

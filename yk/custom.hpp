@@ -33,10 +33,11 @@ constexpr bool scatter(const material<T>& mat, const ray<T>& r,
 }
 
 template <class T>
-constexpr bool bouding_box(const hittable<T>& h, T time0, T time1,
-                           aabb<T>& output_box) noexcept {
-  return std::visit(
-      [](const auto& ho) { return ho.bounding_box(time0, time1, output_box); });
+constexpr bool bounding_box(const hittable<T>& h, T time0, T time1,
+                            aabb<T>& output_box) noexcept {
+  return std::visit([&](const auto& ho) {
+    return ho.bounding_box(time0, time1, output_box);
+  });
 }
 
 }  // namespace yk

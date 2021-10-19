@@ -63,32 +63,32 @@ constexpr yk::hittable<T> get_world(Gen& gen) noexcept {
   for (int a = -11; a < 11; ++a) {
     for (int b = -11; b < 11; ++b) {
       auto choose_mat = dist(gen);
-      yk::pos3<T> center(a + 0.8 * dist(gen), 0.2, b + 0.8 * dist(gen));
-      if ((center - yk::pos3<T>(4, 0.2, 0)).length() <= 0.9) continue;
+      yk::pos3<T> center{a + 0.8 * dist(gen), 0.2, b + 0.8 * dist(gen)};
+      if ((center - yk::pos3<T>{4, 0.2, 0}).length() <= 0.9) continue;
 
       if (choose_mat < 0.8) {
         // diffuse
         auto albedo = yk::color<T>::random(gen) * yk::color<T>::random(gen);
-        auto center2 = center + yk::vec3<T>(0, dist(gen) / 2, 0);
-        world.add(yk::moving_sphere<T>(center, center2, 0, 1, 0.2,
-                                       yk::lambertian<T>(albedo)));
+        auto center2 = center + yk::vec3<T>{0, dist(gen) / 2, 0};
+        world.add(yk::moving_sphere<T>{center, center2, 0, 1, 0.2,
+                                       yk::lambertian<T>{albedo}});
       } else if (choose_mat < 0.95) {
         // metal
         auto albedo = yk::color<T>::random(0.5, 1, gen);
         auto fuzz = dist(gen) / 2;
-        world.add(yk::sphere<T>(center, 0.2, yk::metal<T>(albedo, fuzz)));
+        world.add(yk::sphere<T>{center, 0.2, yk::metal<T>{albedo, fuzz}});
       } else {
         // glass
-        world.add(yk::sphere<T>(center, 0.2, yk::dielectric<T>(1.5)));
+        world.add(yk::sphere<T>{center, 0.2, yk::dielectric<T>{1.5}});
       }
     }
   }
 
-  world.add(yk::sphere<T>({0, 1, 0}, 1.0, yk::dielectric<T>(1.5)));
+  world.add(yk::sphere<T>{{0, 1, 0}, 1.0, yk::dielectric<T>(1.5)});
 
-  world.add(yk::sphere<T>({-4, 1, 0}, 1.0, yk::lambertian<T>({0.4, 0.2, 0.1})));
+  world.add(yk::sphere<T>{{-4, 1, 0}, 1.0, yk::lambertian<T>({0.4, 0.2, 0.1})});
 
-  world.add(yk::sphere<T>({4, 1, 0}, 1.0, yk::metal<T>({0.7, 0.6, 0.5}, 0.0)));
+  world.add(yk::sphere<T>{{4, 1, 0}, 1.0, yk::metal<T>({0.7, 0.6, 0.5}, 0.0)});
 
   return world;
 }
@@ -109,36 +109,44 @@ constexpr auto render() noexcept {
 
   auto world = get_world<T>(mt);
 
-  yk::pos3<T> lookfrom(13, 2, 3);
-  yk::pos3<T> lookat(0, 0, 0);
-  yk::vec3<T> vup(0, 1, 0);
+  yk::pos3<T> lookfrom{13, 2, 3};
+  yk::pos3<T> lookat{0, 0, 0};
+  yk::vec3<T> vup{0, 1, 0};
   auto dist_to_focus = 10.0;
   auto aperture = 0.1;
 
   yk::camera<T> cam(lookfrom, lookat, vup, 20, yk::constants::aspect_ratio,
                     aperture, dist_to_focus, 0, 1);
 
-  for (int h = 0; h < yk::constants::image_height; ++h) {
-    if (not std::is_constant_evaluated()) std::cout << "line : " << h << '\n';
-    for (int w = 0; w < yk::constants::image_width; ++w) {
-      std::vector<yk::ray<T>> rays(yk::constants::samples_per_pixel);
-      std::generate(rays.begin(), rays.end(), [&]() {
-        auto u = double(w + dist(mt)) / yk::constants::image_width;
-        auto v = double(yk::constants::image_height - h - dist(mt)) /
-                 yk::constants::image_height;
-        return cam.get_ray(u, v, mt);
+  std::vector<std::pair<int, int>> pixels;
+  pixels.reserve(yk::constants::image_height * yk::constants::image_width);
+
+  for (int h = 0; h < yk::constants::image_height; ++h)
+    for (int w = 0; w < yk::constants::image_width; ++w)
+      pixels.emplace_back(h, w);
+
+  std::for_each(
+      std::execution::par_unseq, pixels.cbegin(), pixels.cend(),
+      [&](const auto& t) {
+        const auto& [h, w] = t;
+        // if (w == 0) std::cout << "line : " << h << '\n';
+        std::vector<yk::ray<T>> rays(yk::constants::samples_per_pixel);
+        std::generate(rays.begin(), rays.end(), [&,h=h,w=w]() {
+          auto u = double(w + dist(mt)) / yk::constants::image_width;
+          auto v = double(yk::constants::image_height - h - dist(mt)) /
+                   yk::constants::image_height;
+          return cam.get_ray(u, v, mt);
+        });
+        yk::color<T> pixel_color =
+            std::transform_reduce(
+                std::execution::par_unseq, rays.cbegin(), rays.cend(),
+                yk::color<T>{0, 0, 0}, std::plus<>{},
+                [&](const auto& ray) {
+                  return ray_color(ray, world, yk::constants::max_depth, mt);
+                }) /
+            yk::constants::samples_per_pixel;
+        img[h * yk::constants::image_width + w] = into(pixel_color);
       });
-      yk::color<T> pixel_color =
-          std::transform_reduce(
-              std::execution::par_unseq, rays.cbegin(), rays.cend(),
-              yk::color<T>{0, 0, 0}, std::plus<>{},
-              [&](const auto& ray) {
-                return ray_color(ray, world, yk::constants::max_depth, mt);
-              }) /
-          yk::constants::samples_per_pixel;
-      img[h * yk::constants::image_width + w] = into(pixel_color);
-    }
-  }
 
   return img;
 }

@@ -22,9 +22,30 @@ struct bvh_node {
   constexpr bvh_node(const hittable_list<T>& list, T time0, T time1)
       : bvh_node(list.objects, 0, list.objects.size()) {}
 
-  constexpr bvh_node(const std::vector<hittable<T>>& objects, std::size_t start,
-                     std::size_t end, T time0, T time1) {
-    std::size_t span = end - start;
+  template <class Iter>
+  constexpr bvh_node(Iter first, Iter last, T time0, T time1) {
+    auto comp = [](const auto& a, const auto& b) {
+      return std::visit(
+          [](const auto& a, const auto& b) {
+            return yk::bounding_box(a).minimum.x <
+                   yk::bounding_box(b).minimum.x;
+          },
+          a, b);
+    };
+
+    auto span = std::distance(first, last);
+
+    if (span == 1)
+      left = objects[start];
+    else if (span == 2)
+      std::tie(left, right) = std::minmax(*first, *(first + 1), comp);
+    else {
+      auto mid = first + span / 2;
+      std::vector<hittable<T>> objects(first, last);
+      std::sort(objects.begin(), objects.end(), comp);
+      left = bvh_node<T>(objects.begin(), mid, time0, time1);
+      right = bvh_node<T>(mid, objects.end(), time0, time1);
+    }
   }
 
   constexpr bool hit(const ray<T>& r, T t_min, T t_max,

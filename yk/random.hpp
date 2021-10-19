@@ -7,6 +7,9 @@
 
 namespace yk {
 
+
+#if YK_CONFIG_CONSTEXPR_RANDOM
+
 #pragma warning(push, 0)
 
 template <typename UIntType, size_t w, size_t n, size_t m, size_t r, UIntType a,
@@ -262,6 +265,13 @@ constexpr inline bool operator!=(const uniform_real_distribution<IntType>& d1,
                                  const uniform_real_distribution<IntType>& d2) {
   return !(d1 == d2);
 }
+
+#else
+
+using std::mt19937;
+using std::uniform_real_distribution;
+
+#endif
 
 }  // namespace yk
 

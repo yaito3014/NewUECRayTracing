@@ -49,6 +49,9 @@ struct alignas(T) pos3 {
   }
 };
 
+template <class T>
+pos3(T, T, T) -> pos3<T>;
+
 }  // namespace yk
 
 #endif  // !YK_RAYTRACING_POS3_HPP
