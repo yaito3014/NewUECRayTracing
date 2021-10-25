@@ -15,6 +15,7 @@ struct hit_record {
   vec3<T> normal;
   material<T> mat;
   T t;
+  T u, v;
   bool front_face;
 
   constexpr void set_face_normal(const ray<T>& r,

@@ -4,6 +4,7 @@
 #define YK_RAYTRACING_BVH_HPP
 
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "aabb.hpp"
@@ -15,44 +16,69 @@ namespace yk {
 
 template <class T>
 struct bvh_node {
-  hittable<T> left;
-  hittable<T> right;
+  std::unique_ptr<hittable<T>> left;
+  std::unique_ptr<hittable<T>> right;
   aabb<T> box;
 
-  constexpr bvh_node(const hittable_list<T>& list, T time0, T time1)
-      : bvh_node(list.objects, 0, list.objects.size()) {}
+  template <class Gen>
+  constexpr bvh_node(hittable_list<T>&& list, T time0, T time1, Gen& gen)
+      : bvh_node(std::make_move_iterator(list.objects.begin()),
+                 std::make_move_iterator(list.objects.end()), time0, time1,
+                 gen) {}
 
-  template <class Iter>
-  constexpr bvh_node(Iter first, Iter last, T time0, T time1) {
-    auto comp = [](const auto& a, const auto& b) {
-      return std::visit(
-          [](const auto& a, const auto& b) {
-            return yk::bounding_box(a).minimum.x <
-                   yk::bounding_box(b).minimum.x;
-          },
-          a, b);
+  template <class Iter, class Gen>
+  constexpr bvh_node(Iter first, Iter last, T time0, T time1, Gen& gen) {
+    auto axis = std::array{&pos3<T>::x, &pos3<T>::y,
+                           &pos3<T>::z}[uniform_int_distribution<>{0, 2}(gen)];
+    auto comp = [&](const std::unique_ptr<hittable<T>>& a,
+                    const std::unique_ptr<hittable<T>>& b) {
+      aabb<T> box_a{};
+      aabb<T> box_b{};
+      if (!(a && custom::bounding_box(*a, time0, time1, box_a)) ||
+          !(b && custom::bounding_box(*b, time0, time1, box_b)))
+        std::cerr << "No bounding box in bvh_node constructor.(comp)\n";
+      return std::invoke(axis, box_a.minimum) <
+             std::invoke(axis, box_b.minimum);
     };
 
     auto span = std::distance(first, last);
 
     if (span == 1)
-      left = objects[start];
-    else if (span == 2)
-      std::tie(left, right) = std::minmax(*first, *(first + 1), comp);
-    else {
-      auto mid = first + span / 2;
-      std::vector<hittable<T>> objects(first, last);
+      left = std::move(*first);
+    else if (span == 2) {
+      left = *first;
+      right = *(first + 1);
+      if (!comp(left, right)) std::swap(left, right);
+    } else {
+      std::vector<std::unique_ptr<hittable<T>>> objects(first, last);
       std::sort(objects.begin(), objects.end(), comp);
-      left = bvh_node<T>(objects.begin(), mid, time0, time1);
-      right = bvh_node<T>(mid, objects.end(), time0, time1);
+      auto mid = std::make_move_iterator(objects.begin() + span / 2);
+      left = std::make_unique<hittable<T>>(bvh_node<T>(
+          std::make_move_iterator(objects.begin()), mid, time0, time1, gen));
+      right = std::make_unique<hittable<T>>(bvh_node<T>(
+          mid, std::make_move_iterator(objects.end()), time0, time1, gen));
     }
+
+    aabb<T> box_left{};
+    if (left && custom::bounding_box(*left, time0, time1, box_left)) {
+      aabb<T> box_right{};
+      if (right) {
+        if (custom::bounding_box(*right, time0, time1, box_right))
+          box = surrounding_box(box_left, box_right);
+        else
+          std::cerr << "No bounding box in bvh_node constructor.\n";
+      } else
+        box = box_left;
+    } else
+      std::cerr << "No bounding box in bvh_node constructor.\n";
   }
 
   constexpr bool hit(const ray<T>& r, T t_min, T t_max,
                      hit_record<T>& rec) const noexcept {
-    if (box.hit(r, t_min, t_max)) return false;
-    bool hit_left = yk::hit(left, r, t_min, t_max, rec);
-    bool hit_right = yk::hit(right, r, t_min, t_max, rec);
+    if (!box.hit(r, t_min, t_max)) return false;
+    bool hit_left = left && custom::hit(*left, r, t_min, t_max, rec);
+    bool hit_right =
+        right && custom::hit(*right, r, t_min, hit_left ? rec.t : t_max, rec);
     return hit_left || hit_right;
   }
 

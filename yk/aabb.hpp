@@ -14,9 +14,9 @@ struct aabb {
   pos3<T> maximum;
 
   constexpr bool hit(const ray<T>& r, T t_min, T t_max) const noexcept {
-    for (const auto& p : {&pos3<T>::x, &pos3<T>::y, &pos3<T>::z}) {
-      auto [t0, t1] = std::minmax((minimum.*p - r.origin.*p) / r.direction.*p,
-                                  (maximum.*p - r.origin.*p) / r.direction.*p);
+    for (const auto& p : {&vec3<T>::x, &vec3<T>::y, &vec3<T>::z}) {
+      auto [t0, t1] = std::minmax((minimum - r.origin).*p / r.direction.*p,
+                                  (maximum - r.origin).*p / r.direction.*p);
       t_min = std::min(t_min, t0);
       t_max = std::max(t_max, t1);
       if (t_max <= t_min) return false;
@@ -37,7 +37,7 @@ constexpr aabb<T> surrounding_box(aabb<T> box0, aabb<T> box1) noexcept {
       std::max(box0.maximum.y, box1.maximum.y),
       std::max(box0.maximum.z, box1.maximum.z),
   };
-  return aabb<T>(small, big);
+  return aabb<T>{small, big};
 }
 
 }  // namespace yk

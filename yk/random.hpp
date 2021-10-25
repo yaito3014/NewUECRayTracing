@@ -270,6 +270,7 @@ constexpr inline bool operator!=(const uniform_real_distribution<IntType>& d1,
 
 using std::mt19937;
 using std::uniform_real_distribution;
+using std::uniform_int_distribution;
 
 #endif
 

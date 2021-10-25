@@ -45,12 +45,12 @@ struct moving_sphere {
   constexpr bool bounding_box(T time0, T time1,
                               aabb<T>& output_box) const noexcept {
     aabb<T> box0{
-        center(time0) - vec3<T>(radius, radius, radius),
-        center(time0) + vec3<T>(radius, radius, radius),
+        center(time0) - vec3<T>{radius, radius, radius},
+        center(time0) + vec3<T>{radius, radius, radius},
     };
     aabb<T> box1{
-        center(time1) - vec3<T>(radius, radius, radius),
-        center(time1) + vec3<T>(radius, radius, radius),
+        center(time1) - vec3<T>{radius, radius, radius},
+        center(time1) + vec3<T>{radius, radius, radius},
     };
     output_box = surrounding_box(box0, box1);
     return true;

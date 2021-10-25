@@ -3,6 +3,8 @@
 #ifndef YK_RAYTRACING_SPHERE_HPP
 #define YK_RAYTRACING_SPHERE_HPP
 
+#include <memory>
+
 #include "../aabb.hpp"
 #include "../hittable.hpp"
 #include "../material.hpp"
@@ -38,6 +40,7 @@ struct sphere {
     rec.pos = r.at(rec.t);
     vec3<T> outward_normal = (rec.pos - center) / radius;
     rec.set_face_normal(r, outward_normal);
+    get_sphere_uv(outward_normal, rec.u, rec.v);
     rec.mat = mat;
 
     return true;
@@ -50,6 +53,13 @@ struct sphere {
         center + vec3<T>{radius, radius, radius},
     };
     return true;
+  }
+
+  static constexpr void get_sphere_uv(const vec3<T>& p, T& u, T& v) noexcept {
+    auto theta = math::acos(-p.y);
+    auto phi = math::atan2(-p.z, p.x) + math::numbers::pi;
+    u = phi / (2 * math::numbers::pi);
+    v = theta / math::numbers::pi;
   }
 };
 

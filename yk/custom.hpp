@@ -11,8 +11,11 @@
 #include "hittable.hpp"
 #include "material.hpp"
 #include "ray.hpp"
+#include "texture.hpp"
 
 namespace yk {
+
+namespace custom {
 
 template <class T>
 constexpr bool hit(const hittable<T>& h, const ray<T>& r, T t_min, T t_max,
@@ -35,10 +38,18 @@ constexpr bool scatter(const material<T>& mat, const ray<T>& r,
 template <class T>
 constexpr bool bounding_box(const hittable<T>& h, T time0, T time1,
                             aabb<T>& output_box) noexcept {
-  return std::visit([&](const auto& ho) {
-    return ho.bounding_box(time0, time1, output_box);
-  });
+  return std::visit(
+      [&](const auto& ho) { return ho.bounding_box(time0, time1, output_box); },
+      h);
 }
+
+template <class T>
+constexpr color<T> value(const texture<T>& tex, T u, T v,
+                         const pos3<T>& p) noexcept {
+  return std::visit([&](const auto& t) { return t.value(u, v, p); }, tex);
+}
+
+}  // namespace custom
 
 }  // namespace yk
 

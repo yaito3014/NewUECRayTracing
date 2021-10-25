@@ -44,6 +44,12 @@ constexpr T pow(T a, unsigned n) noexcept {
   return res;
 }
 
+using std::acos;
+using std::atan2;
+using std::floor;
+using std::sin;
+using std::tan;
+
 namespace numbers {
 
 inline constexpr double pi = 3.14159265358979;
