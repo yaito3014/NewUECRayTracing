@@ -3,15 +3,14 @@
 #ifndef YK_RAYTACING_IMAGE_TEXTURE_HPP
 #define YK_RAYTACING_IMAGE_TEXTURE_HPP
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <memory>
 
 #include "../color.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../thirdparty/stb_image.h"
 
 namespace yk {
 
