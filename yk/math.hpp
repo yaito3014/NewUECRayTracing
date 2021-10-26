@@ -7,27 +7,27 @@
 
 namespace yk::math {
 
-namespace detail {
-
-template <class T>
-constexpr T sqrtNewtonRaphson(T x, T curr, T prev) noexcept {
-  return curr == prev ? curr
-                      : sqrtNewtonRaphson(x, (curr + x / curr) / T(2), curr);
-}
-
-}  // namespace detail
-
-template <class T>
-constexpr T sqrt(T x) noexcept {
-  return x >= 0 && x < std::numeric_limits<T>::infinity()
-             ? detail::sqrtNewtonRaphson<T>(x, x, 0)
-             : std::numeric_limits<T>::quiet_NaN();
-}
-
-template <class T>
-constexpr T hypot(T x, T y, T z) noexcept {
-  return sqrt(x * x + y * y + z * z);
-}
+// namespace detail {
+//
+// template <class T>
+// constexpr T sqrtNewtonRaphson(T x, T curr, T prev) noexcept {
+//  return curr == prev ? curr
+//                      : sqrtNewtonRaphson(x, (curr + x / curr) / T(2), curr);
+//}
+//
+//}  // namespace detail
+//
+// template <class T>
+// constexpr T sqrt(T x) noexcept {
+//  return x >= 0 && x < std::numeric_limits<T>::infinity()
+//             ? detail::sqrtNewtonRaphson<T>(x, x, 0)
+//             : std::numeric_limits<T>::quiet_NaN();
+//}
+//
+// template <class T>
+// constexpr T hypot(T x, T y, T z) noexcept {
+//  return sqrt(x * x + y * y + z * z);
+//}
 
 template <class T>
 constexpr T abs(T x) noexcept {
@@ -46,8 +46,11 @@ constexpr T pow(T a, unsigned n) noexcept {
 
 using std::acos;
 using std::atan2;
+using std::cos;
 using std::floor;
+using std::hypot;
 using std::sin;
+using std::sqrt;
 using std::tan;
 
 namespace numbers {

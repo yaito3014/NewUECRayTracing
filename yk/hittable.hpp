@@ -23,8 +23,17 @@ template <class T>
 struct bvh_node;
 
 template <class T>
-using hittable =
-    std::variant<sphere<T>, hittable_list<T>, moving_sphere<T>, bvh_node<T>>;
+struct xy_rect;
+
+template <class T>
+struct xz_rect;
+
+template <class T>
+struct yz_rect;
+
+template <class T>
+using hittable = std::variant<sphere<T>, hittable_list<T>, moving_sphere<T>,
+                              bvh_node<T>, xy_rect<T>, xz_rect<T>, yz_rect<T>>;
 
 }  // namespace yk
 

@@ -35,6 +35,34 @@ constexpr bool scatter(const material<T>& mat, const ray<T>& r,
       mat);
 }
 
+namespace detail {
+
+template <class T, class Mat, class = void>
+struct has_emitted : std::false_type {};
+
+template <class T, class Mat>
+struct has_emitted<
+    T, Mat,
+    std::void_t<decltype(std::declval<Mat>().emitted(
+        std::declval<T>(), std::declval<T>(), std::declval<pos3<T>>()))>>
+    : std::true_type {};
+
+}  // namespace detail
+
+template <class T>
+constexpr color<T> emitted(const material<T>& mat, T u, T v,
+                           const pos3<T>& p) noexcept {
+  return std::visit(
+      [&](const auto& m) -> color<T> {
+        using M = std::remove_cv_t<std::remove_reference_t<decltype(m)>>;
+        if constexpr (detail::has_emitted<T, M>::value)
+          return m.emitted(u, v, p);
+        else
+          return {0, 0, 0};
+      },
+      mat);
+}
+
 template <class T>
 constexpr bool bounding_box(const hittable<T>& h, T time0, T time1,
                             aabb<T>& output_box) noexcept {

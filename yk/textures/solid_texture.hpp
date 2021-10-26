@@ -11,6 +11,7 @@ namespace yk {
 template <class T>
 struct solid_texture {
   color<T> color_value;
+
   constexpr color<T> value(T u, T v, const pos3<T>& p) const noexcept {
     return color_value;
   }

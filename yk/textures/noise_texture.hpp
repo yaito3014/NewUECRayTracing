@@ -89,8 +89,9 @@ struct noise_texture {
 
   constexpr color<T> value(T u, T v, const pos3<T>& p) const noexcept {
     vec3<T> p2{p.x, p.y, p.z};
-    return color<T>{1, 1, 1} * 0.5 *
-           (1 + math::sin(scale * p2.z + 10 * noise.turb(p2)));
+    return color<T>{1, 1, 1} / 2 +
+           color<T>{1, 1, 1} * 0.5 *
+               (1 + math::sin(scale * p2.z + 10 * noise.turb(p2)));
   }
 };
 

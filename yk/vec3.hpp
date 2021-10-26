@@ -174,8 +174,8 @@ constexpr vec3<T> random_in_hemisphere(const vec3<T>& normal, Gen& gen) {
 
 template <class T, class Gen>
 vec3<T> random_in_unit_disk(Gen& gen) {
-  std::uniform_real_distribution<T> dist1(-1, 1);
-  std::uniform_real_distribution<T> dist2(0, 0.99);
+  uniform_real_distribution<T> dist1(-1, 1);
+  uniform_real_distribution<T> dist2(0, 0.99);
   return vec3<T>{dist1(gen), dist1(gen), 0}.normalized() * dist2(gen);
 }
 
