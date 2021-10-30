@@ -5,10 +5,10 @@
 
 #include <variant>
 
-#include "aabb.hpp"
 #include "color.hpp"
 #include "hit_record.hpp"
 #include "hittable.hpp"
+#include "hittables/aabb.hpp"
 #include "material.hpp"
 #include "ray.hpp"
 #include "texture.hpp"
@@ -17,11 +17,11 @@ namespace yk {
 
 namespace custom {
 
-template <class T>
+template <class T, class Gen>
 constexpr bool hit(const hittable<T>& h, const ray<T>& r, T t_min, T t_max,
-                   hit_record<T>& rec) noexcept {
+                   hit_record<T>& rec, Gen& gen) noexcept {
   return std::visit(
-      [&](const auto& ho) { return ho.hit(r, t_min, t_max, rec); }, h);
+      [&](const auto& ho) { return ho.hit(r, t_min, t_max, rec, gen); }, h);
 }
 
 template <class T, class Gen>

@@ -5,7 +5,7 @@
 
 #include <memory>
 
-#include "../aabb.hpp"
+#include "aabb.hpp"
 #include "../hittable.hpp"
 #include "../material.hpp"
 #include "../pos3.hpp"
@@ -19,8 +19,9 @@ struct sphere {
   T radius;
   material<T> mat;
 
+  template <class Gen>
   constexpr bool hit(const ray<T>& r, T t_min, T t_max,
-                     hit_record<T>& rec) const noexcept {
+                     hit_record<T>& rec, Gen&) const noexcept {
     vec3<T> oc = r.origin - center;
     auto a = r.direction.length_squared();
     auto half_b = dot(oc, r.direction);

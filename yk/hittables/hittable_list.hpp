@@ -19,21 +19,22 @@ struct hittable_list {
 
   template <class H>
   constexpr void add(H&& h) noexcept {
-    add(std::make_unique<hittable<T>>(std::move(h)));
+    add(std::make_unique<hittable<T>>(std::forward<H>(h)));
   }
 
   constexpr void add(std::unique_ptr<hittable<T>>&& h) noexcept {
     objects.emplace_back(std::move(h));
   }
 
+  template <class Gen>
   constexpr bool hit(const ray<T>& r, T t_min, T t_max,
-                     hit_record<T>& rec) const noexcept {
+                     hit_record<T>& rec,Gen& gen) const noexcept {
     hit_record<T> temp_rec{};
     bool hit_anything = false;
     auto closest_so_far = t_max;
 
     for (const auto& object : objects) {
-      if (yk::custom::hit(*object, r, t_min, closest_so_far, temp_rec)) {
+      if (yk::custom::hit(*object, r, t_min, closest_so_far, temp_rec,gen)) {
         hit_anything = true;
         closest_so_far = temp_rec.t;
         rec = temp_rec;

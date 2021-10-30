@@ -8,9 +8,9 @@
 #include <vector>
 
 #include "aabb.hpp"
-#include "hit_record.hpp"
-#include "hittable.hpp"
-#include "hittables/hittable_list.hpp"
+#include "../hit_record.hpp"
+#include "../hittable.hpp"
+#include "hittable_list.hpp"
 
 namespace yk {
 
@@ -73,12 +73,13 @@ struct bvh_node {
       std::cerr << "No bounding box in bvh_node constructor.\n";
   }
 
-  constexpr bool hit(const ray<T>& r, T t_min, T t_max,
-                     hit_record<T>& rec) const noexcept {
-    if (!box.hit(r, t_min, t_max)) return false;
-    bool hit_left = left && custom::hit(*left, r, t_min, t_max, rec);
-    bool hit_right =
-        right && custom::hit(*right, r, t_min, hit_left ? rec.t : t_max, rec);
+  template <class Gen>
+  constexpr bool hit(const ray<T>& r, T t_min, T t_max, hit_record<T>& rec,
+                     Gen& gen) const noexcept {
+    if (!box.hit(r, t_min, t_max, gen)) return false;
+    bool hit_left = left && custom::hit(*left, r, t_min, t_max, rec, gen);
+    bool hit_right = right && custom::hit(*right, r, t_min,
+                                          hit_left ? rec.t : t_max, rec, gen);
     return hit_left || hit_right;
   }
 

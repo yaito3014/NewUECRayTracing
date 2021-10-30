@@ -3,8 +3,8 @@
 #ifndef YK_RAYTRACING_AABB_HPP
 #define YK_RAYTRACING_AABB_HPP
 
-#include "pos3.hpp"
-#include "ray.hpp"
+#include "../pos3.hpp"
+#include "../ray.hpp"
 
 namespace yk {
 
@@ -13,7 +13,8 @@ struct aabb {
   pos3<T> minimum;
   pos3<T> maximum;
 
-  constexpr bool hit(const ray<T>& r, T t_min, T t_max) const noexcept {
+  template <class Gen>
+  constexpr bool hit(const ray<T>& r, T t_min, T t_max, Gen& gen) const noexcept {
     for (const auto& p : {&vec3<T>::x, &vec3<T>::y, &vec3<T>::z}) {
       auto [t0, t1] = std::minmax((minimum - r.origin).*p / r.direction.*p,
                                   (maximum - r.origin).*p / r.direction.*p);

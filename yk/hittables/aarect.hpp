@@ -5,10 +5,10 @@
 
 #include <utility>
 
-#include "../aabb.hpp"
 #include "../hit_record.hpp"
 #include "../material.hpp"
 #include "../ray.hpp"
+#include "aabb.hpp"
 
 namespace yk {
 
@@ -17,8 +17,9 @@ struct xy_rect {
   T x0, x1, y0, y1, k;
   material<T> mat;
 
-  constexpr bool hit(const ray<T>& r, T t_min, T t_max,
-                     hit_record<T>& rec) const noexcept {
+  template <class Gen>
+  constexpr bool hit(const ray<T>& r, T t_min, T t_max, hit_record<T>& rec,
+                     Gen&) const noexcept {
     auto t = (k - r.origin.z) / r.direction.z;
     if (t < t_min || t > t_max) return false;
     auto x = r.origin.x + t * r.direction.x;
@@ -46,8 +47,9 @@ struct xz_rect {
   T x0, x1, z0, z1, k;
   material<T> mat;
 
-  constexpr bool hit(const ray<T>& r, T t_min, T t_max,
-                     hit_record<T>& rec) const noexcept {
+  template <class Gen>
+  constexpr bool hit(const ray<T>& r, T t_min, T t_max, hit_record<T>& rec,
+                     Gen& gen) const noexcept {
     auto t = (k - r.origin.y) / r.direction.y;
     if (t < t_min || t > t_max) return false;
     auto x = r.origin.x + t * r.direction.x;
@@ -75,8 +77,9 @@ struct yz_rect {
   T y0, y1, z0, z1, k;
   material<T> mat;
 
-  constexpr bool hit(const ray<T>& r, T t_min, T t_max,
-                     hit_record<T>& rec) const noexcept {
+  template <class Gen>
+  constexpr bool hit(const ray<T>& r, T t_min, T t_max, hit_record<T>& rec,
+                     Gen& gen) const noexcept {
     auto t = (k - r.origin.x) / r.direction.x;
     if (t < t_min || t > t_max) return false;
     auto y = r.origin.y + t * r.direction.y;

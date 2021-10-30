@@ -23,8 +23,11 @@ template <class T>
 struct diffuse_light;
 
 template <class T>
-using material =
-    std::variant<lambertian<T>, metal<T>, dielectric<T>, diffuse_light<T>>;
+struct isotropic;
+
+template <class T>
+using material = std::variant<lambertian<T>, metal<T>, dielectric<T>,
+                              diffuse_light<T>, isotropic<T>>;
 
 }  // namespace yk
 

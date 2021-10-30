@@ -14,7 +14,7 @@ set (CMAKE_CXX_STACK_SIZE 1000000000)
 
 
 # ソースをこのプロジェクトの実行可能ファイルに追加します。
-add_executable (NewUECRayTracing "Source.cpp"   "yk/vec3.hpp" "yk/math.hpp" "yk/pos3.hpp" "yk/color.hpp" "yk/ray.hpp" "yk/camera.hpp" "yk/hittable.hpp" "yk/hittables/sphere.hpp" "yk/hittables/hittable_list.hpp" "yk/config.hpp" "yk/material.hpp" "yk/materials/lambertian.hpp" "yk/random.hpp" "yk/materials/metal.hpp"   "yk/hit_record.hpp" "yk/materials/dielectric.hpp" "yk/hittables/moving_sphere.hpp" "yk/aabb.hpp" "yk/custom.hpp" "yk/bvh.hpp" "yk/texture.hpp" "yk/textures/solid_texture.hpp" "yk/textures/checker_texture.hpp" "yk/textures/noise_texture.hpp" "yk/textures/image_texture.hpp" "yk/materials/diffuse_light.hpp" "yk/hittables/aarect.hpp" "thirdparty/stb_image_write.h" "thirdparty/stb_image.h")
+add_executable (NewUECRayTracing "Source.cpp"   "yk/vec3.hpp" "yk/math.hpp" "yk/pos3.hpp" "yk/color.hpp" "yk/ray.hpp" "yk/camera.hpp" "yk/hittable.hpp" "yk/hittables/sphere.hpp" "yk/hittables/hittable_list.hpp" "yk/config.hpp" "yk/material.hpp" "yk/materials/lambertian.hpp" "yk/random.hpp" "yk/materials/metal.hpp"   "yk/hit_record.hpp" "yk/materials/dielectric.hpp" "yk/hittables/moving_sphere.hpp" "yk/hittables/aabb.hpp" "yk/custom.hpp" "yk/hittables/bvh.hpp" "yk/texture.hpp" "yk/textures/solid_color.hpp" "yk/textures/checker_texture.hpp" "yk/textures/noise_texture.hpp" "yk/textures/image_texture.hpp" "yk/materials/diffuse_light.hpp" "yk/hittables/aarect.hpp" "thirdparty/stb_image_write.h" "thirdparty/stb_image.h" "yk/hittables/box.hpp" "yk/hittables/translate.hpp" "yk/hittables/rotate.hpp" "yk/hittables/constant_medium.hpp" "yk/materials/isotropic.hpp")
 
 if (UNIX)
 find_package(TBB REQUIRED)

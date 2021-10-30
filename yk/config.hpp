@@ -11,12 +11,16 @@
 #define YK_CONFIG_SPP 100
 #endif  // !YK_CONFIG_SPP
 
+#ifndef YK_CONFIG_MAX_DEPTH
+#define YK_CONFIG_MAX_DEPTH 50
+#endif  // !YK_CONFIG_MAX_DEPTH
+
 namespace yk {
 
 namespace constants {
 
 inline constexpr auto focal_length = 1.0;
-inline constexpr auto max_depth = 50u;
+inline constexpr auto max_depth = YK_CONFIG_MAX_DEPTH;
 
 }  // namespace constants
 

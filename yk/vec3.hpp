@@ -158,12 +158,12 @@ constexpr vec3<T> refract(const vec3<T>& uv, const vec3<T>& n,
 template <class T, class Gen>
 constexpr vec3<T> random_in_unit_sphere(Gen& gen) {
   uniform_real_distribution<T> dist(0, 0.999);
-  return vec3<T>::random(gen).normalized() * dist(gen);
+  return vec3<T>::random(-1, 1, gen).normalized() * dist(gen);
 }
 
 template <class T, class Gen>
 constexpr vec3<T> random_unit_vector(Gen& gen) {
-  return vec3<T>::random(gen).normalized();
+  return vec3<T>::random(-1, 1, gen).normalized();
 }
 
 template <class T, class Gen>

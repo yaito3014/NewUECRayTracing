@@ -8,7 +8,7 @@
 namespace yk {
 
 template <class T>
-struct solid_texture;
+struct solid_color;
 
 template <class T>
 struct checker_texture;
@@ -20,7 +20,7 @@ template <class T>
 struct image_texture;
 
 template <class T>
-using texture = std::variant<solid_texture<T>, checker_texture<T>,
+using texture = std::variant<solid_color<T>, checker_texture<T>,
                              noise_texture<T>, image_texture<T>>;
 
 }  // namespace yk

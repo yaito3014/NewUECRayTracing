@@ -52,6 +52,7 @@ using std::hypot;
 using std::sin;
 using std::sqrt;
 using std::tan;
+using std::log;
 
 namespace numbers {
 

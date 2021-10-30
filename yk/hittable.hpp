@@ -32,8 +32,22 @@ template <class T>
 struct yz_rect;
 
 template <class T>
-using hittable = std::variant<sphere<T>, hittable_list<T>, moving_sphere<T>,
-                              bvh_node<T>, xy_rect<T>, xz_rect<T>, yz_rect<T>>;
+struct box;
+
+template <class T>
+struct translate;
+
+template <class T>
+struct rotate_y;
+
+template <class T>
+struct constant_medium;
+
+template <class T>
+using hittable =
+    std::variant<sphere<T>, hittable_list<T>, moving_sphere<T>, bvh_node<T>,
+                 xy_rect<T>, xz_rect<T>, yz_rect<T>, box<T>, translate<T>,
+                 rotate_y<T>, constant_medium<T>>;
 
 }  // namespace yk
 
